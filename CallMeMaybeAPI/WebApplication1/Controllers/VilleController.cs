@@ -35,7 +35,7 @@ namespace WebApplication1.Controllers
     [Route("[controller]/create")]
     public IActionResult Create([FromBody] Ville ville)
     {
-        _context.Salarie.Add(ville);
+        _context.Ville.Add(ville);
         _context.SaveChanges();
         return CreatedAtAction(nameof(GetAll), new { id = ville.id }, ville);
     }
