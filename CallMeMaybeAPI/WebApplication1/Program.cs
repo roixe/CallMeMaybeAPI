@@ -31,7 +31,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/V0.1/swagger.json", "JamaisASec API V0.1");
+        c.SwaggerEndpoint("/swagger/V0.1/swagger.json", "CallMeMaybe API");
     });
 }
 app.UseRouting();
