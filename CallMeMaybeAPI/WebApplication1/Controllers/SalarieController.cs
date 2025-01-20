@@ -21,7 +21,19 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                var data = await _context.Salarie.ToListAsync();
+                var data = await (from salarie in _context.Salarie
+                                  join service in _context.Service on salarie.idService equals service.id
+                                  join site in _context.Site on salarie.idSite equals site.id
+                                  select new
+                                  {
+                                      salarie.nom,
+                                      salarie.prenom,
+                                      salarie.telFixe,
+                                      salarie.telMobile,
+                                      salarie.email,
+                                      ServiceNom = service.nom,
+                                      VilleNom = site.ville,
+                                  }).ToListAsync();
                 return Ok(data);
             }
             catch (Exception ex)
