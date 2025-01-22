@@ -46,7 +46,7 @@ namespace WebApplication1.Controllers
         }
 
         // Créer un salarié
-        [HttpPost("create")]
+        [HttpPost("/create")]
         public async Task<IActionResult> Create([FromBody] Salarie salarie)
         {
             if (salarie == null)
@@ -120,6 +120,7 @@ namespace WebApplication1.Controllers
                 salarieToUpdate.idService = salarie.idService;
                 salarieToUpdate.idSite = salarie.idSite;
 
+                _context.Attach(salarieToUpdate);
                 _context.Entry(salarieToUpdate).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
 
