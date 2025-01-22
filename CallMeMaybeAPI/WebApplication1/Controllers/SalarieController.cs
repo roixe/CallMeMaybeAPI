@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore; // Pour inclure Entity Framework
 using WebApplication1.Models;
 
@@ -26,6 +27,7 @@ namespace WebApplication1.Controllers
                                   join site in _context.Site on salarie.idSite equals site.id
                                   select new
                                   {
+                                      salarie.id,
                                       salarie.nom,
                                       salarie.prenom,
                                       salarie.telFixe,
@@ -66,7 +68,9 @@ namespace WebApplication1.Controllers
         }
 
         // Supprimer un salarié par son ID
+        
         [HttpDelete("delete/{id}")]
+
         public async Task<IActionResult> Delete(int id)
         {
             try

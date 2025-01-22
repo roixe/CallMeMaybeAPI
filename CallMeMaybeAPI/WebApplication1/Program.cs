@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using System.Security.Claims;
+using WebApplication1.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 //Ajout du DbContext
@@ -14,6 +16,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 });
 
 
+
 //Permet la génération automatique de documentation des routes
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -22,10 +25,18 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("V0.1", new OpenApiInfo { Title = "CallMeMaybe API", Description = "Donne accès à la base de données gérant pour le client lourd et le site web", Version = "v0.1" });
 });
 
-
+builder.Services.AddCors(options =>
+ 
+     options.AddPolicy("AllowAnyOrigin", builder =>
+     {
+         builder.AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+     }));
 
 var app = builder.Build();
 
+// Activer Swagger pour la documentation API en mode développement
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -34,12 +45,22 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/V0.1/swagger.json", "CallMeMaybe API");
     });
 }
+
+// Activer CORS avant le routage
+app.UseCors("AllowAnyOrigin");
+
 app.UseRouting();
+
+// Définir les points de terminaison (endpoints)
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers(); // Assurez-vous que les contrôleurs sont mappés ici
+});
+
+// Map des contrôleurs
 app.MapControllers();
 
-//Possible d'ajouter CORS, regarder documentation ASP.NET CORE
-//builder.Services.AddCors(options => {});
-
+// Point d'entrée principal
 app.MapGet("/", () => "Hello World!");
 
 app.Run();
