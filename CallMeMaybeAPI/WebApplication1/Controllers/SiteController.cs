@@ -8,6 +8,7 @@ namespace WebApplication1.Controllers
 
 {
     [ApiController]
+    [Route("api/[controller]")]
     public class SiteController : ControllerBase
     {
         private readonly CallMeMaybeDbContext _context;
@@ -21,11 +22,18 @@ namespace WebApplication1.Controllers
 
         }
         [HttpGet]
-        [Route("[controller]/get/all")]
-        public ActionResult GetAll()
+        [HttpGet("get/all")]
+
+        public async Task<IActionResult> GetAll()
         {
 
-            var data = _context.Site;
+            var data = await (from site in _context.Site
+                              select new
+                              {
+                                  site.id,
+                                  site.ville
+
+                              }).ToListAsync();
 
 
 

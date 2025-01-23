@@ -34,7 +34,11 @@ namespace WebApplication1.Controllers
                                       salarie.telMobile,
                                       salarie.email,
                                       ServiceNom = service.nom,
+                                      salarie.idService,
                                       VilleNom = site.ville,
+                                      salarie.idSite
+                                      
+
                                   }).ToListAsync();
                 return Ok(data);
             }
@@ -46,7 +50,7 @@ namespace WebApplication1.Controllers
         }
 
         // Créer un salarié
-        [HttpPost("/create")]
+        [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] Salarie salarie)
         {
             if (salarie == null)
@@ -117,10 +121,9 @@ namespace WebApplication1.Controllers
                 salarieToUpdate.telFixe = salarie.telFixe;
                 salarieToUpdate.telMobile = salarie.telMobile;
                 salarieToUpdate.email = salarie.email;
-                salarieToUpdate.idService = salarie.idService;
-                salarieToUpdate.idSite = salarie.idSite;
+                salarieToUpdate.idService = salarie.idService; // Mise à jour de l'ID service
+                salarieToUpdate.idSite = salarie.idSite;       // Mise à jour de l'ID site
 
-                _context.Attach(salarieToUpdate);
                 _context.Entry(salarieToUpdate).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
 

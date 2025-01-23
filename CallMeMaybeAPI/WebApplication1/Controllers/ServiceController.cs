@@ -6,6 +6,7 @@ namespace WebApplication1.Controllers
 {
 
     [ApiController]
+    [Route("api/[controller]")]
     public class ServiceController : ControllerBase
     {
         private readonly CallMeMaybeDbContext _context;
@@ -19,12 +20,17 @@ namespace WebApplication1.Controllers
 
         }
         // Récupérer tous les Services
-        [HttpGet]
-        [Route("[controller]/get/all")]
-        public ActionResult GetAll()
+        [HttpGet("get/all")]
+        
+        public async Task<IActionResult> GetAll()
         {
 
-            var data = _context.Service;
+            var data = await (from service in _context.Service
+                             select new
+                             {   service.id,
+                                 service.nom
+                             
+                             }).ToListAsync(); 
 
 
 
