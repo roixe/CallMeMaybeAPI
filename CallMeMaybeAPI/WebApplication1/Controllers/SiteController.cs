@@ -41,7 +41,7 @@ namespace WebApplication1.Controllers
             return Ok(data);
         }
         [HttpPost]
-        [Route("[controller]/create")]
+        [Route("create")]
         public IActionResult Create([FromBody] Site site)
         {
             _context.Site.Add(site);
@@ -58,8 +58,20 @@ namespace WebApplication1.Controllers
 
                 if (siteToDelete == null)
                 {
-                    return NotFound($"Le service avec l'ID {id} n'existe pas.");
+                    return NotFound($"Le site avec l'ID {id} n'existe pas.");
                 }
+
+                var salarieWithKey = await _context.Salarie
+                .FirstOrDefaultAsync(s => s.idSite == id);
+
+                if (siteToDelete.id == salarieWithKey.idSite)
+                
+                {
+                    return BadRequest(new { Message = $"Impossible de supprimer le site car un salarié y est associé.{ salarieWithKey.nom  } "});
+
+
+                }
+                
 
                 _context.Site.Remove(siteToDelete);
                 await _context.SaveChangesAsync();
@@ -68,7 +80,7 @@ namespace WebApplication1.Controllers
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError,
-                    $"Erreur lors de la suppression du service : {ex.Message}");
+                    $"Erreur lors de la suppression du site : {ex.Message}");
             }
         }
 
@@ -92,7 +104,7 @@ namespace WebApplication1.Controllers
 
                 // Mise à jour des champs
 
-                siteToUpdate.ville = siteToUpdate.ville;
+                siteToUpdate.ville = site.ville;
 
 
                 _context.Entry(siteToUpdate).State = EntityState.Modified;

@@ -40,7 +40,7 @@ namespace WebApplication1.Controllers
         // Créer un Service 
 
         [HttpPost]
-        [Route("[controller]/create")]
+        [Route("create")]
         public IActionResult Create([FromBody] Service service)
         {
             _context.Service.Add(service);
@@ -61,6 +61,17 @@ namespace WebApplication1.Controllers
                 if (serviceToDelete == null)
                 {
                     return NotFound($"Le service avec l'ID {id} n'existe pas.");
+                }
+
+                var salarieWithKey = await _context.Salarie
+                .FirstOrDefaultAsync(s => s.idService == id);
+
+                if (serviceToDelete.id == salarieWithKey.idService)
+
+                {
+                    return BadRequest(new { Message = $"Impossible de supprimer le service car un salarié y est associé.{salarieWithKey.nom} " });
+
+
                 }
 
                 _context.Service.Remove(serviceToDelete);
