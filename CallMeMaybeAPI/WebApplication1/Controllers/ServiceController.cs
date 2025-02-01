@@ -24,6 +24,15 @@ namespace WebApplication1.Controllers
         
         public async Task<IActionResult> GetAll()
         {
+            if (!Request.Headers.TryGetValue("X-App-Identifier", out var appIdentifier))
+            {
+                return Unauthorized(new { message = "En-tête X-App-Identifier manquant." });
+            }
+            if (appIdentifier != "CallMeMaybe")
+            {
+                return Unauthorized(new { message = "Accès refusé : X-App-Identifier invalide." });
+            }
+
 
             var data = await (from service in _context.Service
                              select new
@@ -56,17 +65,26 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                var serviceToDelete = await _context.Service.FindAsync(id);
+                var serviceToDelete = await _context.Service.FirstOrDefaultAsync(s => s.id == id); 
 
                 if (serviceToDelete == null)
                 {
                     return NotFound($"Le service avec l'ID {id} n'existe pas.");
                 }
+                if (!Request.Headers.TryGetValue("X-App-Identifier", out var appIdentifier))
+                {
+                    return Unauthorized(new { message = "En-tête X-App-Identifier manquant." });
+                }
+                if (appIdentifier != "CallMeMaybe")
+                {
+                    return Unauthorized(new { message = "Accès refusé : X-App-Identifier invalide." });
+                }
+
 
                 var salarieWithKey = await _context.Salarie
                 .FirstOrDefaultAsync(s => s.idService == id);
 
-                if (serviceToDelete.id == salarieWithKey.idService)
+                if (salarieWithKey != null && serviceToDelete.id == salarieWithKey.idService)
 
                 {
                     return BadRequest(new { Message = $"Impossible de supprimer le service car un salarié y est associé.{salarieWithKey.nom} " });
@@ -93,6 +111,15 @@ namespace WebApplication1.Controllers
             {
                 return BadRequest("L'ID dans l'URL ne correspond pas à l'ID du service.");
             }
+            if (!Request.Headers.TryGetValue("X-App-Identifier", out var appIdentifier))
+            {
+                return Unauthorized(new { message = "En-tête X-App-Identifier manquant." });
+            }
+            if (appIdentifier != "CallMeMaybe")
+            {
+                return Unauthorized(new { message = "Accès refusé : X-App-Identifier invalide." });
+            }
+
 
             try
             {

@@ -26,6 +26,14 @@ namespace WebApplication1.Controllers
 
         public async Task<IActionResult> GetAll()
         {
+            if (!Request.Headers.TryGetValue("X-App-Identifier", out var appIdentifier))
+            {
+                return Unauthorized(new { message = "En-tête X-App-Identifier manquant." });
+            }
+            if (appIdentifier != "CallMeMaybe")
+            {
+                return Unauthorized(new { message = "Accès refusé : X-App-Identifier invalide." });
+            }
 
             var data = await (from site in _context.Site
                               select new
@@ -44,6 +52,15 @@ namespace WebApplication1.Controllers
         [Route("create")]
         public IActionResult Create([FromBody] Site site)
         {
+            if (!Request.Headers.TryGetValue("X-App-Identifier", out var appIdentifier))
+            {
+                return Unauthorized(new { message = "En-tête X-App-Identifier manquant." });
+            }
+            if (appIdentifier != "CallMeMaybe")
+            {
+                return Unauthorized(new { message = "Accès refusé : X-App-Identifier invalide." });
+            }
+
             _context.Site.Add(site);
             _context.SaveChanges();
             return CreatedAtAction(nameof(GetAll), new { id = site.id }, site);
@@ -54,17 +71,26 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                var siteToDelete = await _context.Site.FindAsync(id);
+                var siteToDelete = await _context.Site.FirstOrDefaultAsync(s => s.id == id); ;
 
                 if (siteToDelete == null)
                 {
                     return NotFound($"Le site avec l'ID {id} n'existe pas.");
                 }
+                if (!Request.Headers.TryGetValue("X-App-Identifier", out var appIdentifier))
+                {
+                    return Unauthorized(new { message = "En-tête X-App-Identifier manquant." });
+                }
+                if (appIdentifier != "CallMeMaybe")
+                {
+                    return Unauthorized(new { message = "Accès refusé : X-App-Identifier invalide." });
+                }
+
 
                 var salarieWithKey = await _context.Salarie
                 .FirstOrDefaultAsync(s => s.idSite == id);
 
-                if (siteToDelete.id == salarieWithKey.idSite)
+                if (salarieWithKey != null && siteToDelete.id == salarieWithKey.idSite)
                 
                 {
                     return BadRequest(new { Message = $"Impossible de supprimer le site car un salarié y est associé.{ salarieWithKey.nom  } "});
@@ -92,6 +118,15 @@ namespace WebApplication1.Controllers
             {
                 return BadRequest("L'ID dans l'URL ne correspond pas à l'ID de la ville.");
             }
+            if (!Request.Headers.TryGetValue("X-App-Identifier", out var appIdentifier))
+            {
+                return Unauthorized(new { message = "En-tête X-App-Identifier manquant." });
+            }
+            if (appIdentifier != "CallMeMaybe")
+            {
+                return Unauthorized(new { message = "Accès refusé : X-App-Identifier invalide." });
+            }
+
 
             try
             {
