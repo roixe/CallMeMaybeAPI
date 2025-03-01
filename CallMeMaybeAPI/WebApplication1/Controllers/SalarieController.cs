@@ -81,6 +81,11 @@ namespace WebApplication1.Controllers
                 await _context.Salarie.AddAsync(salarie);
                 await _context.SaveChangesAsync();
                 return CreatedAtAction(nameof(GetAll), new { id = salarie.id }, salarie);
+
+            }
+            catch (DbUpdateException ex) when (ex.InnerException is MySqlConnector.MySqlException sqlEx && sqlEx.Message.Contains("Duplicata du champ"))
+            {
+                return Conflict(new { message = "L'adresse email est déjà prise." });
             }
             catch (Exception ex)
             {
