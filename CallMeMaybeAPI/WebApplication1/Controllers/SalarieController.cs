@@ -20,8 +20,17 @@ namespace WebApplication1.Controllers
         [HttpGet("get/all")]
         public async Task<IActionResult> GetAll()
         {
+
             try
             {
+                if (!Request.Headers.TryGetValue("X-App-Identifier", out var appIdentifier))
+                {
+                    return Unauthorized(new { message = "En-tête X-App-Identifier manquant." });
+                }
+                if (appIdentifier != "CallMeMaybe")
+                {
+                    return Unauthorized(new { message = "Accès refusé : X-App-Identifier invalide." });
+                }
                 var data = await (from salarie in _context.Salarie
                                   join service in _context.Service on salarie.idService equals service.id
                                   join site in _context.Site on salarie.idSite equals site.id
@@ -57,12 +66,26 @@ namespace WebApplication1.Controllers
             {
                 return BadRequest("Les données du salarié sont nulles.");
             }
+            if (!Request.Headers.TryGetValue("X-App-Identifier", out var appIdentifier))
+            {
+                return Unauthorized(new { message = "En-tête X-App-Identifier manquant." });
+            }
+            if (appIdentifier != "CallMeMaybe")
+            {
+                return Unauthorized(new { message = "Accès refusé : X-App-Identifier invalide." });
+            }
+
 
             try
             {
                 await _context.Salarie.AddAsync(salarie);
                 await _context.SaveChangesAsync();
                 return CreatedAtAction(nameof(GetAll), new { id = salarie.id }, salarie);
+
+            }
+            catch (DbUpdateException ex) when (ex.InnerException is MySqlConnector.MySqlException sqlEx && sqlEx.Message.Contains("Duplicata du champ"))
+            {
+                return Conflict(new { message = "L'adresse email est déjà prise." });
             }
             catch (Exception ex)
             {
@@ -85,6 +108,14 @@ namespace WebApplication1.Controllers
                 if (salarieToDelete == null)
                 {
                     return NotFound($"Le salarié avec l'ID {id} n'existe pas.");
+                }
+                if (!Request.Headers.TryGetValue("X-App-Identifier", out var appIdentifier))
+                {
+                    return Unauthorized(new { message = "En-tête X-App-Identifier manquant." });
+                }
+                if (appIdentifier != "CallMeMaybe")
+                {
+                    return Unauthorized(new { message = "Accès refusé : X-App-Identifier invalide." });
                 }
 
                 _context.Salarie.Remove(salarieToDelete);
@@ -115,6 +146,16 @@ namespace WebApplication1.Controllers
                 {
                     return NotFound($"Le salarié avec l'ID {id} n'existe pas.");
                 }
+
+                if (!Request.Headers.TryGetValue("X-App-Identifier", out var appIdentifier))
+                {
+                    return Unauthorized(new { message = "En-tête X-App-Identifier manquant." });
+                }
+                if (appIdentifier != "CallMeMaybe")
+                {
+                    return Unauthorized(new { message = "Accès refusé : X-App-Identifier invalide." });
+                }
+
 
                 // Mise à jour des champs
                 salarieToUpdate.nom = salarie.nom;
