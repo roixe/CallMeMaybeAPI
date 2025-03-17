@@ -94,7 +94,7 @@ namespace WebApplication1.Controllers
                 if (salarieWithKey != null && siteToDelete.id == salarieWithKey.idSite)
                 
                 {
-                    return BadRequest(new { Message = $"Impossible de supprimer le site car un salarié y est associé.{ salarieWithKey.nom  } "});
+                    return BadRequest(new { Message = $"Impossible de supprimer le site car au moins un salarié y est associé. Exemple : { salarieWithKey.nom  } {salarieWithKey.prenom} "});
 
 
                 }

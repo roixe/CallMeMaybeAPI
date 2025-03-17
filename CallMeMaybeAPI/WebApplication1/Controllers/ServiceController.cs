@@ -87,7 +87,7 @@ namespace WebApplication1.Controllers
                 if (salarieWithKey != null && serviceToDelete.id == salarieWithKey.idService)
 
                 {
-                    return BadRequest(new { Message = $"Impossible de supprimer le service car un salarié y est associé.{salarieWithKey.nom} " });
+                    return BadRequest(new { Message = $"Impossible de supprimer le service car au moins un salarié y est associé. Exemple : {salarieWithKey.nom} {salarieWithKey.prenom} " });
 
 
                 }
